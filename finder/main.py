@@ -18,6 +18,10 @@ if __name__ == "__main__":
     # Find the closest word in the dataset
     top_10_words = rank_candidates(input_word, word_list)
     
-    sentence_with_specific_word(word_sentence_map, top_10_words, input_word)
+    result = sentence_with_specific_word(word_sentence_map, top_10_words, input_word)
+    for i in result:
+        print(i)
+        print()
+    
     
     

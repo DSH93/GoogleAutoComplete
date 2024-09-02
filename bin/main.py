@@ -1,5 +1,5 @@
 from data_processing import read_sentences_from_files, create_word_sentence_map
-from scoring import rank_candidates, sentence_with_specific_word
+from bin.utils.Scorer import rank_candidates, sentence_with_specific_word
 from collections import Counter
 
 def words_in_sequence(words, sentence):

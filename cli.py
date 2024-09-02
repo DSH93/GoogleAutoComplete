@@ -6,12 +6,7 @@ def start(folder_path):
     for root, dirs, files in os.walk(folder_path):
         for file in files:
             print(os.path.join(root, file))
-        for dir in dirs:
-            print(os.path.join(root, dir))
-        
-
-
-
+    
 
 
 if __name__ == "__main__":

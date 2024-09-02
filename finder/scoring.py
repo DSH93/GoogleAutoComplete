@@ -7,14 +7,14 @@ def is_valid_substring(input_word, candidate_word):
         distance = Levenshtein.distance(input_word, substring)
         
         if distance == 1:
-            # אם יש טעות אחת, נוודא שכל תת המחרוזת התואמת היא לחלוטין פרט לטעות אחת
+            
             if input_word[0] != substring[0] and input_word[1:] == substring[1:]:
-                # נבדוק גם שאין תווים נוספים לפני או אחרי תת-המחרוזת שיכולים להשפיע
+              
                 if i == 0 or candidate_word[i-1].isspace():
                     if i + len_input == len(candidate_word) or candidate_word[i + len_input].isspace():
                         return True
         elif distance == 0:
-            # אם כל תת-המחרוזת תואמת לחלוטין, המחרוזת תקינה
+           
             return True
 
     return False

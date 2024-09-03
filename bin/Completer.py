@@ -55,12 +55,10 @@ class SentenceCompleter:
 
         # Sort by score (higher score is better)
         scored_sentences.sort(key=lambda x: x.score)
-
-        # Return the top 5 matches with the highest score
         return scored_sentences[-5:]
 
     def _words_in_order(self, words_in_sentence, input_words):
-        """Check if input_words are in the correct order within words_in_sentence."""
+        # Check if input_words are in the correct order within words_in_sentence.
         word_idx = 0
         for word in words_in_sentence:
             if word_idx < len(input_words) and calculate_custom_score(input_words[word_idx], word) > 0:

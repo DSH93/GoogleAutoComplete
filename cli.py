@@ -1,5 +1,5 @@
 from bin.utils.DP import DataParser
-from bin.Compliter import SentenceCompleter
+from bin.Completer import SentenceCompleter
 import threading
 import time
 import pickle

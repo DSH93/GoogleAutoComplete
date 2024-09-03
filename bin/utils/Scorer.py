@@ -3,7 +3,7 @@ import re
 
 
 def is_valid_substring(input_word: str, candidate_word: str) -> bool:
-    # checks if the candidate word is a valid substring of the input word
+    # Checks if the candidate word is a valid substring of the input word
     len_input = len(input_word)
     for i in range(len(candidate_word) - len_input + 1):
         substring = candidate_word[i:i + len_input]
@@ -19,7 +19,7 @@ def is_valid_substring(input_word: str, candidate_word: str) -> bool:
 
 
 def calculate_custom_score(input_word: str, word: str) -> int:
-    # scores the word based on the input word first of all max scoring given and then punishment is given based on the operations
+    # Scores the word based on the input word first of all max scoring given and then punishment is given based on the operations
     distance = Levenshtein.distance(input_word, word)
     operations = Levenshtein.editops(input_word, word)
     punishment = 0

@@ -49,7 +49,7 @@ class DataParser:
         return lines
 
     def __lowercase_and_remove_punctuation(self, sentences: list[str]) -> list[str]:
-        # helper function to lowercase and remove punctuation from sentences
+        # Helper function to lowercase and remove punctuation from sentences
         cleaned_sentences = []
         translator = str.maketrans('', '', punctuation)
         for sentence, filename, offset in sentences:

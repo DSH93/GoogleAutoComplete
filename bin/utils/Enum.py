@@ -1,3 +1,6 @@
+from dataclasses import dataclass
+
+@dataclass
 class AutoCompleteData:
     completed_sentence: str
     source_text: str
@@ -5,4 +8,11 @@ class AutoCompleteData:
     score: int
 
     def __str__(self):
-        return f'Sentence: {self.completed_sentence} (source: {self.source_text}, offset: {self.offset}) score: [{self.score}]'
+        return f'{self.completed_sentence} ({self.source_text} {self.offset}) scored : {self.score}'
+
+
+@dataclass
+class TreeNode:
+    children: dict = {}
+    indices: list = []
+    word: str = ""

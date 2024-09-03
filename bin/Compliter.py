@@ -1,25 +1,19 @@
-import os
 from collections import defaultdict
-import Levenshtein as lev
-import os
-from string import punctuation
-from utils.DP import DataParser
-import pickle
-
-
-class TreeNode:
-    def __init__(self):
-        self.children = {}
-        self.indices = []
-        self.word = None
+from bin.utils.Scorer import calculate_custom_score
+from bin.utils.Enum import AutoCompleteData, TreeNode
 
 
 class Tree:
+    """ 
+        A tree data structure to store the sentences, constructed from the words in the sentences.
+        Each node in the tree represents a character in a word. The children of a node are the characters that 
+        follow the current character in a word.The indices list in a node stores the indices of the sentences 
+        that contain the word represented by the path from the root to the node.
+    """
     def __init__(self):
         self.root = TreeNode()
 
     def insert(self, sentence, index):
-        # Convert sentence to lowercase for case insensitivity
         words = sentence.lower().split()
         for word in words:
             current = self.root
@@ -30,20 +24,29 @@ class Tree:
             current.indices.append(index)
             current.word = word
 
-    def search(self, word, max_distance=1):
-        """Searches for words in the trie that are within a given Levenshtein distance."""
+    def search(self, word):
         word = word.lower()
-        return self._search_recursive(self.root, word, "", max_distance, [])
+        results = self._search_recursive(self.root, word, "")
+        results.sort(key=lambda x: x[0], reverse=True)
+        return results
 
-    def _search_recursive(self, node, word, current_word, max_distance, results):
-        distance = lev.distance(word, current_word)
-        if distance <= max_distance and node.word:
-            results.append((current_word, node.indices))
+    # Recursive function to search for a word in the tree, starting from a given node.
+    # Returns a list of tuples containing the score and the indices of the sentences that contain the word.
+    def _search_recursive(self, node, word, current_word):
+        results = []
 
-        if len(current_word) < len(word) + max_distance:
-            for char, child_node in node.children.items():
-                self._search_recursive(
-                    child_node, word, current_word + char, max_distance, results)
+        if len(current_word) > len(word): 
+            return results
+
+        if node.word:
+            score = calculate_custom_score(word, current_word)
+            results.append((score, node.indices))
+
+        if len(current_word) < len(word):
+            next_char = word[len(current_word)]
+            if next_char in node.children:
+                results.extend(self._search_recursive(
+                    node.children[next_char], word, current_word + next_char))
 
         return results
 
@@ -54,74 +57,51 @@ class SentenceCompleter:
         self.sentences = defaultdict(dict)
         self.index = 0
 
-    def add_sentence(self, sentence, filename,  offset):
+    def add_sentence(self, sentence, filename, offset):
         self.sentences[self.index] = {
             'sentence': sentence, 'offset': offset, 'filename': filename}
         self.tree.insert(sentence, self.index)
         self.index += 1
 
-    def complete(self, input_text):
-        # Convert input to lowercase for case insensitivity
-        input_words = input_text.lower().split()
+    def get_best_k_completions(self, prefix:str) -> list[AutoCompleteData]:
+        input_words = prefix.lower().split()
         if not input_words:
             return []
 
-        # Search for words in the trie that match the input with a maximum Levenshtein distance of 1
         all_candidate_indices = []
         for word in input_words:
-            search_results = self.tree.search(word, max_distance=1)
+            search_results = self.tree.search(word)
             if not search_results:
-                return []  # If any word doesn't match, return nothing
+                return []
             all_candidate_indices.append(search_results)
 
-        # Find sentences that contain all words in the correct order
         scored_sentences = []
-        for word, candidate_list in all_candidate_indices[0]:
+        for score, candidate_list in all_candidate_indices[0]:
             for index in candidate_list:
                 sentence_data = self.sentences[index]
-                # Case insensitive comparison
                 words_in_sentence = sentence_data['sentence'].lower().split()
 
                 if self._words_in_order(words_in_sentence, input_words):
-                    total_score = sum(self.calculate_custom_score(input_word, w)
+                    total_score = sum(calculate_custom_score(input_word, w)
                                       for input_word, w in zip(input_words, words_in_sentence))
-                    scored_sentences.append((total_score, sentence_data))
+                    new_data_entry = AutoCompleteData(completed_sentence=sentence_data['sentence'],
+                                                      source_text=sentence_data['filename'],
+                                                      offset=sentence_data['offset'],
+                                                      score=total_score)
+                    scored_sentences.append(new_data_entry)
 
-        # Sort by score (lower score is better)
-        scored_sentences.sort(key=lambda x: x[0])
+        # Sort by score (higher score is better)
+        scored_sentences.sort(key=lambda x: x.score)
 
-        # Return the top 5 matches with the highest similarity (lowest score)
-        return scored_sentences[:5]
+        # Return the top 5 matches with the highest score
+        return scored_sentences[-5:]
 
     def _words_in_order(self, words_in_sentence, input_words):
         """Check if input_words are in the correct order within words_in_sentence."""
         word_idx = 0
         for word in words_in_sentence:
-            if word_idx < len(input_words) and lev.distance(input_words[word_idx], word) <= 1:
+            if word_idx < len(input_words) and calculate_custom_score(input_words[word_idx], word) > 0:
                 word_idx += 1
             if word_idx == len(input_words):
                 return True
         return False
-
-    def calculate_custom_score(self, input_word, matched_word):
-        base_score = 2 * len(input_word)
-        # Penalize based on Levenshtein distance
-        penalty = lev.distance(input_word, matched_word) * 2
-        return base_score - penalty
-
-
-# Example usage:
-completer = SentenceCompleter()
-dataparser = DataParser('data/')
-with open('data/DP.pkl', 'wb') as f:
-    pickle.dump(dataparser, f)
-for line in dataparser.get_sentences():
-    completer.add_sentence(line[0], line[1], line[2])
-# save the completer
-print(f"Loaded {len(completer.sentences)}")
-# Search for the word "introduction"
-print("Trying suggestion")
-suggestions = completer.complete("python code")
-for score, sentence in suggestions:
-    print(f"Score: {score}, Sentence: {sentence['sentence']}, Offset: {
-          sentence['offset']}, Filename: {sentence['filename']}")

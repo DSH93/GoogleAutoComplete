@@ -1,4 +1,14 @@
-from bin.utils.Enum import TreeNode
+from bin.utils.Scorer import calculate_custom_score
+from dataclasses import dataclass, field
+from collections import defaultdict
+
+
+@dataclass
+class TreeNode:
+    children: defaultdict = field(default_factory=lambda: defaultdict(dict))
+    indices: list = field(default_factory=list)
+
+    word: str = ""
 
 
 class Tree:

@@ -1,6 +1,6 @@
 from collections import defaultdict
 from bin.utils.Scorer import calculate_custom_score
-from bin.utils.Enum import AutoCompleteData, TreeNode
+from bin.utils.Enum import AutoCompleteData
 from bin.ds.Tree import Tree
 
 
@@ -36,10 +36,10 @@ class SentenceCompleter:
             if not search_results:
                 return []
             all_candidate_indices.append(search_results)
-
+        
         scored_sentences = []
         # run through all candidates and check if the words are in order and calculate the score
-        for _, candidate_list in all_candidate_indices[0]:
+        for _, candidate_list in (all_candidate_indices[0]):
             for index in candidate_list:
                 sentence_data = self.sentences[index]
                 words_in_sentence = sentence_data['sentence'].lower().split()

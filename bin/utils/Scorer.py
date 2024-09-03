@@ -1,5 +1,4 @@
 import Levenshtein
-import re
 
 
 def is_valid_substring(input_word: str, candidate_word: str) -> bool:
@@ -25,6 +24,7 @@ def calculate_custom_score(input_word: str, word: str) -> int:
     punishment = 0
     max_score = len(input_word) * 2
     if distance > 1 and not is_valid_substring(input_word, word):
+        print(f"Input word {input_word} | word {word} | distance {distance} | operations {operations} | punishment {punishment}")
         return max_score * (-10)
     for i in range(len(operations)):
         index = operations[i][1]

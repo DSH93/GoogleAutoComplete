@@ -62,13 +62,13 @@ def main(data_path):
     logging.info("Completion data initialized.")
 
     input_phrase = ""
-    print("Please enter a string (type '#' to stop current line, type '##' to stop): ")
+    print("Please enter a string (type '#' to stop current line, type '@' to stop): ")
 
     while True:
-        input_phrase += " " + input(f"{input_phrase}")
+        input_phrase += input(f"{input_phrase}") + " "
         if '#' in input_phrase:
             input_phrase = input("Enter new phrase: ")
-        elif '##' in input_phrase:
+        elif '@' in input_phrase:
             break
         for index, sentence_data in enumerate(compliter.get_best_k_completions(input_phrase)):
             print(f"{index}. {str(sentence_data)}")

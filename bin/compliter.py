@@ -1,3 +1,0 @@
-"""
-  Complites the sentence based 
-"""

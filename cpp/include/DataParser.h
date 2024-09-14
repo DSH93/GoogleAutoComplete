@@ -13,18 +13,15 @@
 class DataParser {
 public:
     DataParser(const std::string& folderPath);
-    const std::unordered_set<std::string>& getUniqueWords() const;
-    const std::unordered_set<std::string>& getSentences() const;
     const std::unordered_map<std::string, std::vector<std::string>>& getWordToSentence() const;
+    const std::unordered_map<int, std::vector<std::unordered_map<std::string, int>>>& getWordsCountAndLength() const;
     std::vector<std::string> getSentencesWithWord(const std::string& word) const;
-    std::vector<std::string> getWordsByMinHash(int num_hashes);
+
 
 private:
-    std::unordered_set<std::string> uniqueWords;
+    std::unordered_map<int, std::vector<std::unordered_map<std::string, int>>> wordsCountAndLength;
     std::unordered_set<std::string> sentences;
     std::unordered_map<std::string, std::vector<std::string>> wordToSentence;
-
-
 
     void loadFilesFromFolder(const std::string& folderPath);
     void loadFile(const std::string& filePath);
@@ -32,8 +29,9 @@ private:
     static void cleanSentence(std::string& sentence);
     static bool isInvalidWord(const std::string& word);
     void addSentenceToWord();
+    void sortWords();
     static size_t compute_minhash(const std::string& word, int num_hashes);
-    std::vector<std::string> sort_words_by_minhash(const std::unordered_set<std::string>& words, int num_hashes);
+    void sort_words_by_minhash(std::vector<std::pair<std::string, int>>& words, int num_hashes);
 };
 
 

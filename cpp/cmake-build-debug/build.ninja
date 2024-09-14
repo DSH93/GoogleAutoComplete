@@ -73,6 +73,12 @@ build CMakeFiles/cpp.dir/src/Suggester.cpp.o: CXX_COMPILER__cpp_unscanned_Debug 
   OBJECT_DIR = CMakeFiles/cpp.dir
   OBJECT_FILE_DIR = CMakeFiles/cpp.dir/src
 
+build CMakeFiles/cpp.dir/src/Word.cpp.o: CXX_COMPILER__cpp_unscanned_Debug /cygdrive/c/Users/Dor$ Shukrun/AllCoding/Exelanteam/forked/GoogleAutoComplete/GoogleAutoComplete/cpp/src/Word.cpp || cmake_object_order_depends_target_cpp
+  DEP_FILE = CMakeFiles/cpp.dir/src/Word.cpp.o.d
+  FLAGS = -g -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles/cpp.dir
+  OBJECT_FILE_DIR = CMakeFiles/cpp.dir/src
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target cpp
@@ -81,7 +87,7 @@ build CMakeFiles/cpp.dir/src/Suggester.cpp.o: CXX_COMPILER__cpp_unscanned_Debug 
 #############################################
 # Link the executable cpp.exe
 
-build cpp.exe: CXX_EXECUTABLE_LINKER__cpp_Debug CMakeFiles/cpp.dir/main.cpp.o CMakeFiles/cpp.dir/src/DataParser.cpp.o CMakeFiles/cpp.dir/src/Score.cpp.o CMakeFiles/cpp.dir/src/Suggester.cpp.o
+build cpp.exe: CXX_EXECUTABLE_LINKER__cpp_Debug CMakeFiles/cpp.dir/main.cpp.o CMakeFiles/cpp.dir/src/DataParser.cpp.o CMakeFiles/cpp.dir/src/Score.cpp.o CMakeFiles/cpp.dir/src/Suggester.cpp.o CMakeFiles/cpp.dir/src/Word.cpp.o
   FLAGS = -g
   LINK_FLAGS = -Wl,--enable-auto-import
   OBJECT_DIR = CMakeFiles/cpp.dir

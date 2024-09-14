@@ -10,4 +10,6 @@ add_executable(cpp main.cpp
         include/Score.h
         src/Suggester.cpp
         include/Suggester.h
+        src/Word.cpp
+        include/Word.h
 )

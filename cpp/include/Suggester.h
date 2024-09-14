@@ -8,18 +8,25 @@
 
 #include <iostream>
 #include "DataParser.h"
+#include "Word.h"
 #include <string>
 
 class Suggester {
 private:
-    std::vector<std::string> uniqueWords;
+
+    std::unordered_map<int, std::vector<std::unordered_map<std::string, int>>> wordsCountAndLength;
     std::unordered_map<std::string, std::vector<std::string>> wordToSentence;
     std::string path;
+
+    std::vector<Word> getHighestScoreWords(std::string userInput);
+
 
 public:
     Suggester(std::string path);
     ~Suggester();
     void suggest();
+
+
 
 };
 

@@ -6,8 +6,8 @@
 
 Suggester::Suggester(std::string path) {
     DataParser dataParser(path);
-    uniqueWords = dataParser.getWordsByMinHash(10);
-    wordToSentence = dataParser.getWordToSentence();
+    wordToSentence = std::move(dataParser.getWordToSentence());
+    wordsCountAndLength = std::move(dataParser.getWordsCountAndLength());
 }
 
 Suggester::~Suggester() = default;

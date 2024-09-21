@@ -25,8 +25,6 @@ int WordScorer::levenshteinDistance(const std::string& s1, const std::string& s2
 
 std::vector<WordScorer::EditOperation> WordScorer::editOperations(const std::string& s1, const std::string& s2) {
     std::vector<EditOperation> operations;
-
-
     return operations;
 }
 
@@ -58,11 +56,7 @@ int WordScorer::calculateCustomScore(const std::string& inputWord, const std::st
     int punishment = 0;
     int max_score = inputWord.length() * 2;
 
-    if (distance > 1 && !isValidSubstring(inputWord, word)) {
-        std::cout << "Input word " << inputWord << " | word " << word
-                  << " | distance " << distance << " | punishment " << punishment << std::endl;
-        return max_score * (-10);
-    }
+
 
     for (const auto& op : operations) {
         int index = op.index;

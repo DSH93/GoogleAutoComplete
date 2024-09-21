@@ -12,4 +12,5 @@ add_executable(cpp main.cpp
         include/Suggester.h
         src/Word.cpp
         include/Word.h
+        include/Line.h
 )

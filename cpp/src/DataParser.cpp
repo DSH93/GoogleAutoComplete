@@ -12,10 +12,16 @@
 
 namespace fs = std::filesystem;
 
+
+
 // Constructor: Initializes by loading files and processing sentences
 DataParser::DataParser(const std::string& folderPath) {
+    auto start = std::chrono::high_resolution_clock::now();
     loadFilesFromFolder(folderPath);
     processSentences();
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "Time taken: " << std::chrono::duration_cast<std::chrono::seconds>(end - start).count() << " seconds" << std::endl;
+
 }
 
 // File reading functions
@@ -28,42 +34,67 @@ void DataParser::loadFilesFromFolder(const std::string& folderPath) {
     }
 }
 
+
 void DataParser::loadFile(const std::string& filePath) {
     std::ifstream file(filePath);
     std::string line;
+    int lineNumber = 0;
+    std::filesystem::path path(filePath);
+    std::string fileName = path.filename().string();
+    Line l;
+    l.file = fileName;
+
     while (std::getline(file, line)) {
+        lineNumber++;
         if (!line.empty()) {
-            sentences.insert(line);
+            l.line = lineNumber;
+            l.sen = line;
+            sentences.insert(l);
         }
     }
     file.close();
 }
 
+
+
+
 // Sentence processing
 void DataParser::processSentences() {
     addSentenceToWord();
     sortWords();
-    std::cout << "Finished processing files" << std::endl;
 }
 
 void DataParser::addSentenceToWord() {
-    int size = 0;
-    for (auto sentence : sentences) {
-        cleanSentence(const_cast<std::string &>(sentence));
-        std::istringstream iss(sentence);
+    for (const auto& sentence : sentences) {
+        std::string cleanSentenceStr = sentence.sen;
+        std::string fileName = sentence.file;
+        std::string line = std::to_string(sentence.line);
+        cleanSentence(cleanSentenceStr);
+
+        std::string cleanSentenceStrWithFile = cleanSentenceStr + " [File: " + fileName + " Line: " + line + "]";
+        std::istringstream iss(cleanSentenceStr);
         std::string word;
         while (iss >> word) {
             if (!isInvalidWord(word)) {
-                size = word.size();
-                auto& temp = wordsCountAndLength[size];
-                for (int i = 0; i < temp.size(); ++i) {
-                    temp[i].try_emplace(word, 1).first->second++;
+                int size = word.size();
+                auto& wordsVector = wordsCountAndLength[size];
+                auto it = std::find_if(wordsVector.begin(), wordsVector.end(),
+                                       [&word](const std::pair<std::string, int>& element) {
+                                           return element.first == word;
+                                       });
+                if (it != wordsVector.end()) {
+                    it->second++;
+                } else {
+                    wordsVector.emplace_back(word, 1);
                 }
-                wordToSentence[word].push_back(sentence);
+                wordToSentence[word].push_back(cleanSentenceStrWithFile);
             }
         }
     }
 }
+
+
+
 
 // Word processing and cleaning
 void DataParser::cleanSentence(std::string& sentence) {
@@ -76,9 +107,12 @@ void DataParser::cleanSentence(std::string& sentence) {
     std::transform(sentence.begin(), sentence.end(), sentence.begin(),
                    [](unsigned char c) { return std::tolower(c); });
 
-    sentence = std::string(sentence.begin(), std::unique(sentence.begin(), sentence.end(),
-                                                         [](char a, char b) { return std::isspace(a) && std::isspace(b); }));
+
+    std::string::iterator new_end = std::unique(sentence.begin(), sentence.end(),
+                                                [](char a, char b) { return std::isspace(a) && std::isspace(b); });
+    sentence.erase(new_end, sentence.end());
 }
+
 
 bool DataParser::isInvalidWord(const std::string& word) {
     if (word.length() > 20) {
@@ -91,17 +125,12 @@ bool DataParser::isInvalidWord(const std::string& word) {
 
 // Sorting words by MinHash
 void DataParser::sortWords() {
-    for (int i = 0; i < wordsCountAndLength.size(); ++i) {
-        auto& temp = wordsCountAndLength[i];
-        for (int j = 0; j < temp.size(); ++j) {
-            std::vector<std::pair<std::string, int>> words;
-            for (const auto& word : temp[j]) {
-                words.emplace_back(word.first, word.second);
-            }
-            sort_words_by_minhash(words, 30);
-        }
+    for (auto& lengthPair : wordsCountAndLength) {
+        auto& wordsVector = lengthPair.second;
+        sort_words_by_minhash(wordsVector, 30);
     }
 }
+
 
 void DataParser::sort_words_by_minhash(std::vector<std::pair<std::string, int>>& words, int num_hashes) {
     // Create a vector to store the words and their corresponding MinHash values.
@@ -119,21 +148,22 @@ void DataParser::sort_words_by_minhash(std::vector<std::pair<std::string, int>>&
                   return lhs.second < rhs.second;  // Sort based on MinHash values
               });
 
+    // Create a map for quick access to the word count.
+    std::unordered_map<std::string, int> word_map;
+    for (const auto& word_pair : words) {
+        word_map[word_pair.first] = word_pair.second;
+    }
+
     // Create a new sorted vector for `words`.
     std::vector<std::pair<std::string, int>> sorted_words;
     for (const auto& pair : word_minhash_pairs) {
-        // Find the original pair in `words` and push it into `sorted_words`
-        for (const auto& word_pair : words) {
-            if (word_pair.first == pair.first) {
-                sorted_words.push_back(word_pair);
-                break;  // Once found, move to the next word
-            }
-        }
+        sorted_words.emplace_back(pair.first, word_map[pair.first]);
     }
 
     // Replace the original `words` vector with the sorted one.
     words = std::move(sorted_words);
 }
+
 
 // Utility functions
 size_t DataParser::compute_minhash(const std::string& word, int num_hashes) {
@@ -151,7 +181,7 @@ const std::unordered_map<std::string, std::vector<std::string>>& DataParser::get
     return wordToSentence;
 }
 
-const std::unordered_map<int, std::vector<std::unordered_map<std::string, int>>>& DataParser::getWordsCountAndLength() const {
+const std::unordered_map<int, std::vector<std::pair<std::string, int>>>& DataParser::getWordsCountAndLength() const {
     return wordsCountAndLength;
 }
 

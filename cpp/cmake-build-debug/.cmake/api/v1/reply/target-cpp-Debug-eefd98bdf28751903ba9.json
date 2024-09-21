@@ -103,7 +103,8 @@
 				2,
 				4,
 				6,
-				8
+				8,
+				9
 			]
 		}
 	],
@@ -157,6 +158,11 @@
 		{
 			"backtrace" : 1,
 			"path" : "include/Word.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "include/Line.h",
 			"sourceGroupIndex" : 1
 		}
 	],

@@ -14,20 +14,16 @@
 class Suggester {
 private:
 
-    std::unordered_map<int, std::vector<std::unordered_map<std::string, int>>> wordsCountAndLength;
+    std::unordered_map<int, std::vector<std::pair<std::string, int>>> wordsCountByLength;
     std::unordered_map<std::string, std::vector<std::string>> wordToSentence;
-    std::string path;
-
-    std::vector<Word> getHighestScoreWords(std::string userInput);
-
+    std::vector<Word> getHighestScoreWords(const std::string& userInput);
 
 public:
-    Suggester(std::string path);
+    Suggester(const std::string& path);
     ~Suggester();
     void suggest();
-
-
-
+    std::vector<std::pair<std::string, int>> getWordsByLength(int length);
+    void addWord(const std::string &word, int frequency);
 };
 
 
